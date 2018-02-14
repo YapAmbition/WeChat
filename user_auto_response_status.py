@@ -24,7 +24,7 @@ def set_user_auto_response_stats(user_json):
         return None
     md5_remark_name = md5_name.md5_name(obj['RemarkName'])
     try:
-        r.hset(hashname, md5_remark_name, STATUS_NORMAL) if obj['status'] else r.hset(hashname, md5_remark_name, STATUS_CLOSE)
+        r.hset(hashname, md5_remark_name, obj['status'])
     except:
         print '插入redis失败:%s' % user_json
 
