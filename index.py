@@ -4,27 +4,37 @@
 import robot
 import itchat
 import user_msg_suf
+import user_auto_response_status
 import json
+import time
 import sys
 reload(sys)
 sys.setdefaultencoding("utf8")
 
-robot = robot.TuLing()
+# 初始化代码块
+robot = robot.TuLing() # 初始化图灵机器人
+GLOBAL_AUTO_RESPONSE = True # 是否开启自动回复
 
 
 @itchat.msg_register([itchat.content.TEXT, itchat.content.PICTURE])
 def TuLing_Reply(msg):  # 注册图灵机器人
-    if msg['FromUserName'] == msg['ToUserName']:  # 给自己发消息
-        do_some_cmd(msg)
-    default_response = 'my net is wrong, so you is a shagou'
+    if msg['FromUserName'] == msg['ToUserName']: do_some_cmd(msg) # 如果是给自己发消息，判断是否是命令模式
+    # //todo 很不好的做法
+    # 如果全局自动回复开启，则正常返回自动回复,
+    if GLOBAL_AUTO_RESPONSE : response = get_response(msg)
+    else : return None
+    handle_msg(msg, response) # 在日志中记录下聊天信息
+    return response
+
+# 返回正确的返回
+def get_response(msg):
     response = ''
     if msg['Type'] == itchat.content.TEXT:
         response = robot.say(msg['Text'])
     if msg['Type'] == itchat.content.PICTURE:
-        response = '别老发图了，我看不懂...'
-    response = add_suf(msg['User']['RemarkName'] or msg['User']['NickName'], response)
-    handle_msg(msg, response)
-    return response or default_response
+        response = '本机器人看不懂图...'
+    response = add_suf(msg['User']['RemarkName'] or msg['User']['NickName'], response) # 添加后缀功能
+    return response
 
 
 # 处理返回消息,记入文本中
@@ -55,9 +65,16 @@ def do_some_cmd(msg):
             try:
                 user_json = json.dumps({'RemarkName': params[1], 'suf': params[2]})
                 user_msg_suf.set_user_suf(user_json)
-                print '添加[%s]后缀[%s]成功' % (params[1], params[2])
+                print '添加[%s]后缀[%s]成功,time:%s' % (params[1], params[2], time.time())
             except:
                 print '添加redis时出错：do_some_cmd,%s' % (json.dumps(msg))
+        elif params[0].upper() == 'SET_AUTO_RESPONSE': # 设置全局自动回复
+            GLOBAL_AUTO_RESPONSE = True if params[1] else False
+            print '设置全局自动回复，time:%s' % time.time()
+        elif params[0].upper() == 'SET_USER_AUTO_RESPONSE': # 设置某人的自动回复
+            user_json = json.dumps({'RemarkName': params[1], 'status': params[2]})
+            user_auto_response_status.set_user_auto_response_stats(user_json)
+            print '设置%s的自动回复状态为%s,time:%s' % (params[1], params[2], time.time())
 
 
 # itchat.auto_login(hotReload=True, enableCmdQR=True)  # 用命令行二维码热登陆，在linux上登陆

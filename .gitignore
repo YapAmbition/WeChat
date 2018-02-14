@@ -1,4 +1,6 @@
 wechat.log
 itchat.pkl
 nohup.out
+test.py
+.idea/
 *.pyc

@@ -17,6 +17,7 @@ def set_user_suf(user_json):
     obj = None
     try:
         obj = json.loads(user_json)
+        print '在redis中插入了数据%s' % user_json
     except:
         print '加载json出错：%s' % user_json
         return None
@@ -32,7 +33,6 @@ def get_user_suf(RemarkName):
     md5_remark_name = md5_name.md5_name(RemarkName)
     res = None if not user_suf.has_key(md5_remark_name) else user_suf[md5_remark_name]
     if res is None :
-        print '从redis中获取%s数据' % md5_remark_name
         res = r.hget(hashname, md5_remark_name)
         if res is not None:
             user_suf[md5_remark_name] = res
