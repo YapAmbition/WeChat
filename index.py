@@ -28,6 +28,7 @@ def TuLing_Reply(msg):  # 注册图灵机器人
 
 # 返回正确的返回
 def get_response(msg):
+    if not user_auto_response_status.get_user_auto_response_stats(msg['User']['RemarkName']) : return None # 如果该用户的自动回复状态为false直接不返回
     response = ''
     if msg['Type'] == itchat.content.TEXT:
         response = robot.say(msg['Text'])
@@ -69,6 +70,7 @@ def do_some_cmd(msg):
             except:
                 print '添加redis时出错：do_some_cmd,%s' % (json.dumps(msg))
         elif params[0].upper() == 'SET_AUTO_RESPONSE': # 设置全局自动回复
+            global GLOBAL_AUTO_RESPONSE
             GLOBAL_AUTO_RESPONSE = True if params[1] else False
             print '设置全局自动回复，time:%s' % time.time()
         elif params[0].upper() == 'SET_USER_AUTO_RESPONSE': # 设置某人的自动回复
