@@ -28,7 +28,7 @@ def TuLing_Reply(msg):  # 注册图灵机器人
 
 # 返回正确的返回
 def get_response(msg):
-    if not user_auto_response_status.get_user_auto_response_stats(msg['User']['RemarkName']) : return None # 如果该用户的自动回复状态为false直接不返回
+    if user_auto_response_status.STATUS_CLOSE == user_auto_response_status.get_user_auto_response_stats(msg['User']['RemarkName']) : return None  # 如果该用户的自动回复状态为false直接不返回
     response = ''
     if msg['Type'] == itchat.content.TEXT:
         response = robot.say(msg['Text'])

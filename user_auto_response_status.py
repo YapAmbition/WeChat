@@ -12,7 +12,7 @@ hashname = 'user_auto_response_status'
 r = redis.Redis(host="localhost", port="6379", db=0)
 
 STATUS_NORMAL = 1  # 自动回复开启状态
-STATUS_CLOSE = 0  # 自动回复关闭状态
+STATUS_CLOSE = 2  # 自动回复关闭状态
 
 
 def set_user_auto_response_stats(user_json):
@@ -32,4 +32,4 @@ def set_user_auto_response_stats(user_json):
 def get_user_auto_response_stats(RemarkName):
     md5_remark_name = md5_name.md5_name(RemarkName)
     res = r.hget(hashname, md5_remark_name)
-    return STATUS_NORMAL if res else STATUS_CLOSE
+    return res
