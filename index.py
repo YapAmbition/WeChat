@@ -18,13 +18,15 @@ GLOBAL_AUTO_RESPONSE = True # 是否开启自动回复
 
 @itchat.msg_register([itchat.content.TEXT, itchat.content.PICTURE])
 def TuLing_Reply(msg):  # 注册图灵机器人
-    if msg['FromUserName'] == msg['ToUserName']: do_some_cmd(msg) # 如果是给自己发消息，判断是否是命令模式
-    # //todo 很不好的做法
-    # 如果全局自动回复开启，则正常返回自动回复,
-    if GLOBAL_AUTO_RESPONSE : response = get_response(msg)
-    else : return None
-    handle_msg(msg, response) # 在日志中记录下聊天信息
-    return response
+    if msg['FromUserName'] == msg['ToUserName']:
+        do_some_cmd(msg) # 如果是给自己发消息，判断是否是命令模式
+        return None
+    else:
+        # 如果全局自动回复开启，则正常返回自动回复
+        if GLOBAL_AUTO_RESPONSE : response = get_response(msg)
+        else : return None
+        handle_msg(msg, response) # 在日志中记录下聊天信息
+        return response
 
 # 返回正确的返回
 def get_response(msg):
