@@ -73,7 +73,7 @@ def do_some_cmd(msg):
             except:
                 print '添加redis时出错：do_some_cmd,%s' % (json.dumps(msg))
         elif params[0].upper() == 'SET_AUTO_RESPONSE': # 设置全局自动回复
-            GLOBAL_AUTO_RESPONSE = True if params[1] else False
+            GLOBAL_AUTO_RESPONSE = True if int(params[1]) else False
             print '设置全局自动回复为%s，time:%s' % (params[1], time.time())
         elif params[0].upper() == 'SET_USER_AUTO_RESPONSE': # 设置某人的自动回复
             user_json = json.dumps({'RemarkName': params[1], 'status': params[2]})
