@@ -5,6 +5,7 @@
 import redis
 import user_msg_suf
 import json
+import Szc_Log
 import sys
 reload(sys)
 sys.setdefaultencoding("utf8")
@@ -30,7 +31,8 @@ for RemarkName, suf in add_dict.items():
     try:
         user_json = json.dumps({'RemarkName':RemarkName, 'suf':suf})
         user_msg_suf.set_user_suf(user_json)
+        Szc_Log.debug('%s: 成功添加后缀:%s' % (__file__, user_json))
     except:
-        print '添加redis时出错：%s,%s' % (RemarkName,suf)
+        Szc_Log.warning('%s: 添加redis时出错：%s,%s' % (__file__, RemarkName,suf))
 
 print 'done'

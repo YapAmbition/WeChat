@@ -7,6 +7,7 @@
 import redis
 import json
 import md5_name
+import Szc_Log
 
 hashname = 'user_auto_response_status'
 r = redis.Redis(host="localhost", port="6379", db=0)
@@ -16,20 +17,14 @@ STATUS_CLOSE = 2  # 自动回复关闭状态
 
 
 def set_user_auto_response_status(user_json):
-    obj = None
     try:
         obj = json.loads(user_json)
-    except:
-        print '加载json出错：%s' % user_json
-        return None
-    md5_remark_name = md5_name.md5_name(obj['RemarkName'])
-    try:
+        md5_remark_name = md5_name.md5_name(obj['RemarkName'])
         r.hset(hashname, md5_remark_name, obj['status'])
+        Szc_Log.debug('%s: 修改%s的user_auto_response_status为%s' % (__file__, obj['RemarkName'], obj['status']))
     except:
-        print '插入redis失败:%s' % user_json
+        Szc_Log.warning('%s: 修改用户user_auto_response_status出错：%s' % (__file__, user_json))
 
 
 def get_user_auto_response_status(RemarkName):
-    md5_remark_name = md5_name.md5_name(RemarkName)
-    res = r.hget(hashname, md5_remark_name)
-    return res
+    return r.hget(hashname, md5_name.md5_name(RemarkName))

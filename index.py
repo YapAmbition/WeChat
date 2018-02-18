@@ -7,19 +7,20 @@ import user_msg_suf
 import user_auto_response_status
 import json
 import time
+import Szc_Log
 import sys
 reload(sys)
 sys.setdefaultencoding("utf8")
 
 # 初始化代码块
-robot = robot.TuLing() # 初始化图灵机器人
-GLOBAL_AUTO_RESPONSE = True # 是否开启自动回复
+robot = robot.TuLing()  # 初始化图灵机器人
+GLOBAL_AUTO_RESPONSE = True  # 是否开启自动回复
 
 
 @itchat.msg_register([itchat.content.TEXT, itchat.content.PICTURE])
 def TuLing_Reply(msg):  # 注册图灵机器人
     if msg['FromUserName'] == msg['ToUserName']:
-        cmd_response = do_some_cmd(msg) # 如果是给自己发消息，判断是否是命令模式
+        cmd_response = do_some_cmd(msg)  # 如果是给自己发消息，判断是否是命令模式
         return cmd_response
     else:
         # 如果全局自动回复开启，则正常返回自动回复
@@ -28,9 +29,11 @@ def TuLing_Reply(msg):  # 注册图灵机器人
         handle_msg(msg, response) # 在日志中记录下聊天信息
         return response
 
-# 返回正确的返回
+
+# 正确的返回
 def get_response(msg):
     if str(user_auto_response_status.STATUS_CLOSE) == str(user_auto_response_status.get_user_auto_response_status(msg['User']['RemarkName'])) : return None  # 如果该用户的自动回复状态为false直接不返回
+    if str(user_auto_response_status.STATUS_CLOSE) == str(user_auto_response_status.get_user_auto_response_status(msg['User']['NickName'])) : return None  # 如果该用户的自动回复状态为false直接不返回
     response = ''
     if msg['Type'] == itchat.content.TEXT:
         response = robot.say(msg['Text'])
@@ -42,10 +45,9 @@ def get_response(msg):
 
 # 处理返回消息,记入文本中
 def handle_msg(msg, response):
-    username = msg['User']['RemarkName']
-    if len(username) : username = msg['User']['NickName']
+    username = msg['User']['RemarkName'] if len(msg['User']['RemarkName']) else msg['User']['NickName']
     message = msg['Text']
-    ss = str(username) + ' : ' + str(message) + '\n' + 'I say : ' + str(response) + '\n'
+    ss = "%s: %s\nresponse: %s" % (username, message, response)
     wechat_log = open('wechat.log', 'a')  # 写入文件
     wechat_log.write(ss)
     wechat_log.close()
@@ -58,6 +60,7 @@ def add_suf(RemarkName, text):
         text = '%s       ---%s' % (text, suf)
     return text
 
+
 # 命令模式
 def do_some_cmd(msg):
     text = msg['Text']
@@ -69,19 +72,19 @@ def do_some_cmd(msg):
             try:
                 user_json = json.dumps({'RemarkName': params[1], 'suf': params[2]})
                 user_msg_suf.set_user_suf(user_json)
-                print '添加[%s]后缀[%s]成功,time:%s' % (params[1], params[2], time.time())
+                Szc_Log.debug('%s: 添加[%s]后缀[%s]成功,time:%s' % (__file__, params[1], params[2], time.time()))
             except:
-                print '添加redis时出错：do_some_cmd,%s' % (json.dumps(msg))
-        elif params[0].upper() == 'SET_AUTO_RESPONSE': # 设置全局自动回复
+                Szc_Log.warning('%s: 添加redis时出错：do_some_cmd,%s' % (__file__, json.dumps(msg)))
+        elif params[0].upper() == 'SET_AUTO_RESPONSE':  # 设置全局自动回复
             GLOBAL_AUTO_RESPONSE = True if int(params[1]) else False
-            print '设置全局自动回复为%s，time:%s' % (params[1], time.time())
-        elif params[0].upper() == 'SET_USER_AUTO_RESPONSE': # 设置某人的自动回复
+            Szc_Log.debug('%s: 设置全局自动回复为%s，time:%s' % (__file__, params[1], time.time()))
+        elif params[0].upper() == 'SET_USER_AUTO_RESPONSE':  # 设置某人的自动回复
             user_json = json.dumps({'RemarkName': params[1], 'status': params[2]})
             user_auto_response_status.set_user_auto_response_status(user_json)
-            print '设置%s的自动回复状态为%s,time:%s' % (params[1], params[2], time.time())
-        elif params[0].upper() == 'SELECT_AUTO_RESPONSE': # 查询当前全局自动回复开关
+            Szc_Log.debug('%s: 设置%s的自动回复状态为%s,time:%s' % (__file__, params[1], params[2], time.time()))
+        elif params[0].upper() == 'SELECT_AUTO_RESPONSE':  # 查询当前全局自动回复开关
             return GLOBAL_AUTO_RESPONSE
-        elif params[0].upper() == 'SELECT_USER_AUTO_RESPONSE': # 查询当前某人自动回复开关
+        elif params[0].upper() == 'SELECT_USER_AUTO_RESPONSE':  # 查询当前某人自动回复开关
             return user_auto_response_status.get_user_auto_response_status(params[1])
     return None
 
