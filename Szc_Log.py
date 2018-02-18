@@ -9,7 +9,7 @@
 
 import time
 
-LOG_DIR = '/Users/shenzhencheng/Documents/pycharm/WeChat'  # 日志存放目录
+LOG_DIR = './log/'  # 日志存放目录
 PROJECT_NAME = 'wechat'  # 项目名，日志前缀
 
 # 定义错误级别常量
