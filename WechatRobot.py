@@ -43,7 +43,7 @@ def say_to_1406(msg=None):
     :param msg: 说的内容
     :return:
     """
-    chatroom = itchat.search_chatrooms(name=u'拉票投票')
+    chatroom = itchat.search_chatrooms(name=u'软件1406班群')
     if msg is not None: itchat.send_msg(msg, toUserName=chatroom[0]['UserName'])
 
 

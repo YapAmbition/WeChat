@@ -8,6 +8,7 @@
 import datetime
 import ScanMysqlForNotify
 import thread
+import WechatRobot
 
 
 class WechatRobotCommand:
@@ -49,7 +50,7 @@ class WechatRobotCommand:
         :return: 返回设置完以后的值
         """
         if len(self.cmdList) == 2:
-            if self.cmdList[1]:
+            if self.cmdList[1] in ['1', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']:
                 self.wechatRobotController.global_auto_response = True
                 return "%s: SET_AUTO_RESPONSE_STATUS -> True" % datetime.datetime.now()
             else:
