@@ -71,10 +71,13 @@ class WechatRobotCommand:
         2.每半小时一次,扫描mysql,如果有新的通知,则直接发送到半群
         :return:
         """
-        self.wechatRobotController.csu_rjxy_notify = True
-        scan_mysql_for_notify = ScanMysqlForNotify.ScanMysqlForNotify(self.wechatRobotController)
-        thread.start_new_thread(scan_mysql_for_notify.start_scan, ())
-        return "%s: START_CSU_RJXY_NOTIFY 通知开启成功,每半小时扫描一次" % datetime.datetime.now()
+        if self.wechatRobotController.csu_rjxy_notify is False:
+            self.wechatRobotController.csu_rjxy_notify = True
+            scan_mysql_for_notify = ScanMysqlForNotify.ScanMysqlForNotify(self.wechatRobotController)
+            thread.start_new_thread(scan_mysql_for_notify.start_scan, ())
+            return "%s: START_CSU_RJXY_NOTIFY 通知开启成功,每半小时扫描一次" % datetime.datetime.now()
+        else:
+            return "%s: START_CSU_RJXY_NOTIFY 通知已经开启,请勿重新开始" % datetime.datetime.now()
 
     def finish_csu_rjxy_notify(self):
         """
