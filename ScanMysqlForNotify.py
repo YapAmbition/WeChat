@@ -17,7 +17,7 @@ class ScanMysqlForNotify:
         self.password = "954552106"
         self.database = "csu_rjxy_notify"
         self.table_name = "informations"
-        self.interval = int(60 * 30)  # 扫描时间间隔30分钟
+        self.interval = int(60 * 15)  # 扫描时间间隔15分钟
         self.wechatRobotController = wechat_robot_controller
 
     def start_scan(self):
