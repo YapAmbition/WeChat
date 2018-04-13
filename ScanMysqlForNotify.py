@@ -7,6 +7,8 @@
 import MySQLdb
 import time
 import WechatRobot
+import datetime
+import Szc_Log
 
 
 class ScanMysqlForNotify:
@@ -31,22 +33,24 @@ class ScanMysqlForNotify:
         while self.wechatRobotController.csu_rjxy_notify:
             cursor.execute(scan_sql)
             informations = cursor.fetchall()
-            print informations
+            str_log = "%s: scan mysql : %s" % (datetime.datetime.now(), str(informations))
+            Szc_Log.debug(str_log)
             if len(informations) > 0:
                 for information in informations:
-                    WechatRobot.say_to_1406(self.format_information(information))
+                    WechatRobot.say_to_1406(format_information(information))
                     update_sql = "UPDATE %s SET `is_new` = 0 WHERE id = %d" % (self.table_name, information[0])
                     cursor.execute(update_sql)
                 db.commit()
             time.sleep(self.interval)
         db.close()
 
-    def format_information(self, information):
-        """
-        格式化通知,等待微信端输出
-        :param information: 从mysql获取到的一条通知
-        :return:
-        """
-        notify = "院网又发通知啦:\n标题: %s\n连接: %s\n日期: %s" % (information[1], information[2], information[3])
-        return notify
+
+def format_information(information):
+    """
+    格式化通知,等待微信端输出
+    :param information: 从mysql获取到的一条通知
+    :return:
+    """
+    notify = "院网又发通知啦:\n标题: %s\n连接: %s\n日期: %s" % (information[1], information[2], information[3])
+    return notify
 

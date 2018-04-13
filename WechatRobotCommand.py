@@ -8,7 +8,7 @@
 import datetime
 import ScanMysqlForNotify
 import thread
-import WechatRobot
+import Szc_Log
 
 
 class WechatRobotCommand:
@@ -20,6 +20,15 @@ class WechatRobotCommand:
         self.command = None
         self.wechatRobotController = wechat_robot_controller
         self.cmdList = []
+        self.helpList = {
+            "HELP": {"desc": "获得能使用的所有命令"},
+            "SAY_HELLO": {"desc": "向nikfce发送{msg},测试用", "msg": "* 待发送的内容"},
+            "SET_AUTO_RESPONSE_STATUS": {"desc": "设置自动回复状态为{status}(默认为False)", "status":"自动回复状态值,当状态为True时开启自动回复"},
+            "GET_AUTO_RESPONSE_STATUS": {"desc": "获取当前自动回复状态值"},
+            "START_CSU_RJXY_NOTIFY": {"desc": "开启自动发送院内通知"},
+            "STOP_CSU_RJXY_NOTIFY": {"desc": "停止自动发送院内通知"},
+            "GET_CSU_RJXY_NOTIFY_STATUS": {"desc": "获得当前自动发送院内通知状态"},
+        }
 
     def handle_command(self, command):
         """
@@ -30,11 +39,33 @@ class WechatRobotCommand:
         """
         self.command = command
         self.cmdList = command.split('&&')
-        if self.cmdList[0].upper() == "SAY_HELLO": return self.say_hello()
+        if self.cmdList[0].upper() == "HELP": return self.help()
+        elif self.cmdList[0].upper() == "SAY_HELLO": return self.say_hello()
         elif self.cmdList[0].upper() == "SET_AUTO_RESPONSE_STATUS": return self.set_auto_response_status()
         elif self.cmdList[0].upper() == "GET_AUTO_RESPONSE_STATUS": return self.get_auto_response_status()
         elif self.cmdList[0].upper() == "START_CSU_RJXY_NOTIFY": return self.start_csu_rjxy_notify()
-        elif self.cmdList[0].upper() == "FINISH_CSU_RJXY_NOTIFY": return self.finish_csu_rjxy_notify()
+        elif self.cmdList[0].upper() == "STOP_CSU_RJXY_NOTIFY": return self.stop_csu_rjxy_notify()
+        elif self.cmdList[0].upper() == "GET_CSU_RJXY_NOTIFY_STATUS": return self.get_csu_rjxy_notify_status()
+
+    def help(self):
+        """
+        获得能使用的所有命令
+        :return:
+        """
+        result = ""
+        for cmd_name, cmd_desc in self.helpList.iteritems():
+            result += cmd_name
+            result += "("
+            for k, v in cmd_desc.iteritems():
+                if k is not "desc":
+                    result += k
+                    result += ": "
+                    result += v
+                    result += "; "
+            result += "): "
+            result += cmd_desc['desc']
+            result += "\n"
+        return result
 
     def say_hello(self):
         """
@@ -52,10 +83,14 @@ class WechatRobotCommand:
         if len(self.cmdList) == 2:
             if self.cmdList[1] in ['1', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']:
                 self.wechatRobotController.global_auto_response = True
-                return "%s: SET_AUTO_RESPONSE_STATUS -> True" % datetime.datetime.now()
+                str_log = "%s: SET_AUTO_RESPONSE_STATUS -> True" % datetime.datetime.now()
+                Szc_Log.debug(str_log)
+                return str_log
             else:
                 self.wechatRobotController.global_auto_response = False
-                return "%s: SET_AUTO_RESPONSE_STATUS -> False" % datetime.datetime.now()
+                str_log = "%s: SET_AUTO_RESPONSE_STATUS -> False" % datetime.datetime.now()
+                Szc_Log.debug(str_log)
+                return str_log
 
     def get_auto_response_status(self):
         """
@@ -69,24 +104,35 @@ class WechatRobotCommand:
         """
         开启学院通知
         1.将wechatRobotController.csu_rjxy_notify设置为True
-        2.每半小时一次,扫描mysql,如果有新的通知,则直接发送到半群
+        2.扫描mysql,如果有新的通知,则直接发送到班群
         :return:
         """
         if self.wechatRobotController.csu_rjxy_notify is False:
             self.wechatRobotController.csu_rjxy_notify = True
             scan_mysql_for_notify = ScanMysqlForNotify.ScanMysqlForNotify(self.wechatRobotController)
             thread.start_new_thread(scan_mysql_for_notify.start_scan, ())
-            return "%s: START_CSU_RJXY_NOTIFY 通知开启成功,每15分钟扫描一次" % datetime.datetime.now()
+            str_log = "%s: START_CSU_RJXY_NOTIFY 通知开启成功,每15分钟扫描一次" % datetime.datetime.now()
+            Szc_Log.debug(str_log)
+            return str_log
         else:
-            return "%s: START_CSU_RJXY_NOTIFY 通知已经开启,请勿重新开始" % datetime.datetime.now()
+            str_log = "%s: START_CSU_RJXY_NOTIFY 通知已经开启,请勿重新开始" % datetime.datetime.now()
+            Szc_Log.debug(str_log)
+            return str_log
 
-    def finish_csu_rjxy_notify(self):
+    def stop_csu_rjxy_notify(self):
         """
         关闭学院通知
         依然通过wechatRobotController.csu_rjxy_notify控制
         :return:
         """
         self.wechatRobotController.csu_rjxy_notify = False
-        return "%s: FINISH_CSU_RJXY_NOTIFY 通知关闭成功" % datetime.datetime.now()
+        str_log = "%s: FINISH_CSU_RJXY_NOTIFY 通知关闭成功" % datetime.datetime.now()
+        Szc_Log.debug(str_log)
+        return str_log
 
-
+    def get_csu_rjxy_notify_status(self):
+        """
+        获得学院通知状态
+        :return:
+        """
+        return "True" if self.wechatRobotController.csu_rjxy_notify else "False"
