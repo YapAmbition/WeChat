@@ -27,10 +27,11 @@ class ScanMysqlForNotify:
         连接mysql并扫描查看是否有新的通知,如果有则发送至班群并更新数据库表
         :return:
         """
-        db = MySQLdb.connect(self.host, self.username, self.password, self.database, use_unicode=True, charset="utf8")
-        cursor = db.cursor()
-        scan_sql = "SELECT * FROM %s WHERE `is_new` = 1" % self.table_name
         while self.wechatRobotController.csu_rjxy_notify:
+            db = MySQLdb.connect(self.host, self.username, self.password, self.database, use_unicode=True,
+                                 charset="utf8")
+            cursor = db.cursor()
+            scan_sql = "SELECT * FROM %s WHERE `is_new` = 1" % self.table_name
             cursor.execute(scan_sql)
             informations = cursor.fetchall()
             str_log = "%s: scan mysql : %s" % (datetime.datetime.now(), str(informations))
@@ -42,7 +43,7 @@ class ScanMysqlForNotify:
                     cursor.execute(update_sql)
                 db.commit()
             time.sleep(self.interval)
-        db.close()
+            db.close()
 
 
 def format_information(information):

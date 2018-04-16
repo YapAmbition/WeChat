@@ -31,5 +31,9 @@ Wechat微信机器人
 
 * 添加help命令,获得当前能用的所有命令列表
 
+### 最后的改动 2018-04-16
+
+* 在ScanMysqlForNotify.py start_scan中,之前扫描mysql的方案为只请求一次mysql连接,这样很容易造成mysql连接超时,解决方法要么设置为mysql连接超时时间为永久,要么每次扫描时开启新的连接,为了连接安全选择了第二种
+
 #### TODO
 
